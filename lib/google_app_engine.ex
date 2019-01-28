@@ -10,7 +10,7 @@ defmodule Cluster.Strategy.GoogleAppEngine do
 
   alias Cluster.Strategy.State
 
-  @default_polling_interval 5_000
+  @default_polling_interval 10_000
   @access_token_path 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token'
 
   def start_link(args) do
