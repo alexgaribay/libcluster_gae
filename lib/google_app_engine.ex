@@ -8,8 +8,6 @@ defmodule Cluster.Strategy.GoogleAppEngine do
   use GenServer
   use Cluster.Strategy
 
-  require Logger
-
   alias Cluster.Strategy.State
 
   @default_polling_interval 5_000
@@ -107,9 +105,8 @@ defmodule Cluster.Strategy.GoogleAppEngine do
 
   defp access_token do
     headers = [{'Metadata-Flavor', 'Google'}]
-    http_options = [ssl: [verify: :verify_none], timeout: 15000]
 
-    case :httpc.request(:get, {@access_token_path, headers}, http_options, []) do
+    case :httpc.request(:get, {@access_token_path, headers}, [], []) do
       {:ok, {{_, 200, _}, _headers, body}} ->
         %{"access_token" => token} = Jason.decode!(body)
         token
