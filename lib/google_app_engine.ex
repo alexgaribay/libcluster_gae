@@ -2,7 +2,66 @@ defmodule Cluster.Strategy.GoogleAppEngine do
   @moduledoc """
   Clustering strategy for Google App Engine.
 
-  This strategy only connect nodes that are able to receive HTTP traffic.
+  This strategy checks for the list of app versions that are currently receiving HTTP.
+  For each version that is listed, the list of instances running for that version are fetched.
+  Once all of the instances have been received, they attempt to connect to each other.
+
+  **Note**: This strategy only connects nodes that are able to receive HTTP traffic.
+
+  Here's an example configuration:
+
+  ```elixir
+  config :libcluster,
+    topologies: [
+      my_app: [
+        strategy: Cluster.Strategy.GoogleAppEngine,
+        config: [
+          polling_interval: 10_000
+        ]
+      ]
+    ]
+  ```
+
+  ## Configurable Options
+
+  Options can be set for the strategy under the `:config` key when defining the topology.
+
+  * `:polling_interval` - Interval for checking for the list of running instances. Defaults to `10_000`
+
+  ## Application Setup
+
+  ### Google Cloud
+
+  Enable the **App Engine Admin API** for your application's Google Cloud Project. Follow the guide on [enabling APIs](https://cloud.google.com/apis/docs/enable-disable-apis).
+
+  ### Release Configuration
+
+  Update your release's `vm.args` file to include the following lines.
+
+  ```
+  ## Name of the node
+  -sname <%= release_name %>@${GAE_INSTANCE}
+
+  ## Limit distributed erlang ports to a single port
+  -kernel inet_dist_listen_min 9999
+  -kernel inet_dist_listen_max 9999
+  ```
+
+  ### GAE Configuration File
+
+  Update the `app.yaml` configuration file for Google App Engine.
+
+  ```yaml
+  env_variables:
+    REPLACE_OS_VARS: true
+
+  network:
+    forwarded_ports:
+      # epmd
+      - 4369
+      # erlang distribution
+      - 9999
+  ```
   """
 
   use GenServer

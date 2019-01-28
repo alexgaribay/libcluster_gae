@@ -9,7 +9,7 @@ Add `:libcluster_gae` to your project's mix dependencies.
 ```elixir
 def deps do
   [
-    {:libcluster_gae, "~> 0.1.0"}
+    {:libcluster_gae, "~> 0.1"}
   ]
 end
 ```
@@ -67,7 +67,7 @@ Update your release's `vm.args` file to include the following lines.
 -kernel inet_dist_listen_max 9999
 ```
 
-Update the `app.yaml` configuration for Google App Engine.
+Update the `app.yaml` configuration file for Google App Engine.
 
 ```yaml
 env_variables:
