@@ -24,6 +24,8 @@ Clustering will only apply to nodes that are configured to receive HTTP traffic 
 
 Before clustering can work, enable the **App Engine Admin API** for your application's Google Cloud Project. Follow the guide on [enabling APIs](https://cloud.google.com/apis/docs/enable-disable-apis).
 
+![Video demonstrating how to enable the App Engine Admin API](https://i.imgur.com/jBhOGYG.gif)
+
 ### Elixir Application
 
 To cluster an application running in Google App Engine, define a topology for `libcluster`.
