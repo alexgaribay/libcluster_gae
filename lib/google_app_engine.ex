@@ -40,7 +40,7 @@ defmodule Cluster.Strategy.GoogleAppEngine do
 
   ```
   ## Name of the node
-  -sname <%= release_name %>@${GAE_INSTANCE}
+  -name <%= release_name%>@${GAE_INSTANCE}.c.${GOOGLE_CLOUD_PROJECT}.internal
 
   ## Limit distributed erlang ports to a single port
   -kernel inet_dist_listen_min 9999
@@ -113,15 +113,15 @@ defmodule Cluster.Strategy.GoogleAppEngine do
   end
 
   defp get_nodes(%State{}) do
-    instances = get_running_instances()
+    project_id = System.get_env("GOOGLE_CLOUD_PROJECT")
+    instances = get_running_instances(project_id)
 
     release_name = System.get_env("REL_NAME")
 
-    Enum.map(instances, & :"#{release_name}@#{&1}")
+    Enum.map(instances, & :"#{release_name}@#{&1}.c.#{project_id}.internal")
   end
 
-  defp get_running_instances do
-    project_id = System.get_env("GOOGLE_CLOUD_PROJECT")
+  defp get_running_instances(project_id) do
     service_id = System.get_env("GAE_SERVICE")
 
     versions = get_running_versions(project_id, service_id)

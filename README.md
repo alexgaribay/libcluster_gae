@@ -60,7 +60,7 @@ Update your release's `vm.args` file to include the following lines.
 
 ```
 ## Name of the node
--sname <%= release_name %>@${GAE_INSTANCE}
+-name <%= release_name%>@${GAE_INSTANCE}.c.${GOOGLE_CLOUD_PROJECT}.internal
 
 ## Limit distributed erlang ports to a single port
 -kernel inet_dist_listen_min 9999
