@@ -1,6 +1,6 @@
 This library is a strategy for `libcluster` for connecting nodes in Google App Engine. If you're unfamiliar with `libcluster`, please read the [documentation](https://github.com/bitwalker/libcluster).
 
-This library makes the assumption that the elixir application is using [Distillery](https://github.com/bitwalker/distillery) releases.
+This library makes the assumption that the elixir application is using [mix releases](https://hexdocs.pm/mix/Mix.Tasks.Release.html)
 
 ## Installation
 
@@ -9,7 +9,7 @@ Add `:libcluster_gae` to your project's mix dependencies.
 ```elixir
 def deps do
   [
-    {:libcluster_gae, "~> 0.1"}
+    {:libcluster_gae, "~> 0.2"}
   ]
 end
 ```
@@ -58,20 +58,15 @@ defmodule MyApp.App do
 end
 ```
 
-Update your release's `vm.args` file to include the following lines.
-
-```
-## Name of the node
--name <%= release_name%>@${GAE_INSTANCE}.c.${GOOGLE_CLOUD_PROJECT}.internal
-
-## Limit distributed erlang ports to a single port
--kernel inet_dist_listen_min 9999
--kernel inet_dist_listen_max 9999
-```
-
 Update the `app.yaml` configuration file for Google App Engine.
 
 ```yaml
+runtime_config:
+  ...
+  packages:
+    ...
+    - jq
+
 env_variables:
   REPLACE_OS_VARS: true
 
@@ -81,6 +76,30 @@ network:
     - 4369
     # erlang distribution
     - 9999
+```
+
+Add the following to, or create a `rel/env.sh.eex`
+
+```bash
+#!/bin/sh
+
+
+if [ ! -f /tmp/zone ]; then
+  curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token | jq -r .access_token > /tmp/access_token
+  curl -H "Authorization: Bearer $(cat /tmp/access_token)" https://appengine.googleapis.com/v1/apps/${GOOGLE_CLOUD_PROJECT}/services/${GAE_SERVICE}/versions/${GAE_VERSION}/instances/${GAE_INSTANCE} | jq -r .vmZoneName > /tmp/zone
+fi
+
+export RELEASE_DISTRIBUTION="name"
+export RELEASE_NODE="${REL_NAME}@${GAE_INSTANCE}.$(cat /tmp/zone).c.${GOOGLE_CLOUD_PROJECT}.internal"
+
+case $RELEASE_COMMAND in
+  start*|daemon*)
+    ELIXIR_ERL_OPTIONS="-kernel inet_dist_listen_min 9999 inet_dist_listen_max 9999"
+    export ELIXIR_ERL_OPTIONS
+    ;;
+  *)
+    ;;
+esac
 ```
 
 Now run `gcloud app deploy` and enjoy clustering on GAE!

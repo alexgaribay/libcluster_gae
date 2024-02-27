@@ -5,7 +5,7 @@ defmodule LibclusterGae.MixProject do
     [
       app: :libcluster_gae,
       description: "",
-      version: "0.1.2",
+      version: "0.2.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -34,6 +34,7 @@ defmodule LibclusterGae.MixProject do
       links: %{"GitHub" => source_url()}
     ]
   end
+
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
